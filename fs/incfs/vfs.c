@@ -474,9 +474,6 @@ static ssize_t pending_reads_read(struct file *f, char __user *buf, size_t len,
 	ssize_t result = 0;
 	int i = 0;
 
-	if (!mi)
-		return -EFAULT;
-
 	if (!incfs_fresh_pending_reads_exist(mi, last_known_read_sn))
 		return 0;
 
@@ -805,17 +802,13 @@ static int read_single_page(struct file *f, struct page *page)
 	ssize_t read_result = 0;
 	struct data_file *df = get_incfs_data_file(f);
 	int result = 0;
-	void *page_start;
+	void *page_start = kmap(page);
 	int block_index;
 	int timeout_ms;
 
-	if (!df) {
-		SetPageError(page);
-		unlock_page(page);
+	if (!df)
 		return -EBADF;
-	}
 
-	page_start = kmap(page);
 	offset = page_offset(page);
 	block_index = offset / INCFS_DATA_FILE_BLOCK_SIZE;
 	size = df->df_size;
@@ -827,10 +820,6 @@ static int read_single_page(struct file *f, struct page *page)
 		};
 
 		tmp.data = (u8 *)__get_free_pages(GFP_NOFS, get_order(tmp.len));
-		if (!tmp.data) {
-			read_result = -ENOMEM;
-			goto err;
-		}
 		bytes_to_read = min_t(loff_t, size - offset, PAGE_SIZE);
 		read_result = incfs_read_data_file_block(
 			range(page_start, bytes_to_read), f, block_index,
@@ -842,7 +831,6 @@ static int read_single_page(struct file *f, struct page *page)
 		read_result = 0;
 	}
 
-err:
 	if (read_result < 0)
 		result = read_result;
 	else if (read_result < PAGE_SIZE)
@@ -1522,9 +1510,6 @@ static struct dentry *dir_lookup(struct inode *dir_inode, struct dentry *dentry,
 			range((u8 *)dentry->d_name.name, dentry->d_name.len);
 	int err = 0;
 
-	if (!mi || !dir_info || !dir_info->n_backing_inode)
-		return ERR_PTR(-EBADF);
-
 	if (d_inode(mi->mi_backing_dir_path.dentry) ==
 		dir_info->n_backing_inode) {
 		/* We do lookup in the FS root. Show pseudo files. */
@@ -1640,7 +1625,7 @@ static int dir_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 
 	if (!backing_dentry) {
 		err = -EBADF;
-		goto path_err;
+		goto out;
 	}
 
 	if (backing_dentry->d_parent == mi->mi_index_dir) {
@@ -1672,8 +1657,6 @@ out:
 	if (d_really_is_negative(dentry))
 		d_drop(dentry);
 	path_put(&backing_path);
-
-path_err:
 	mutex_unlock(&mi->mi_dir_struct_mutex);
 	if (err)
 		pr_debug("incfs: %s err:%d\n", __func__, err);
@@ -1729,9 +1712,6 @@ static int dir_unlink(struct inode *dir, struct dentry *dentry)
 	struct kstat stat;
 	int err = 0;
 
-	if (!mi)
-		return -EBADF;
-
 	err = mutex_lock_interruptible(&mi->mi_dir_struct_mutex);
 	if (err)
 		return err;
@@ -1739,7 +1719,7 @@ static int dir_unlink(struct inode *dir, struct dentry *dentry)
 	get_incfs_backing_path(dentry, &backing_path);
 	if (!backing_path.dentry) {
 		err = -EBADF;
-		goto path_err;
+		goto out;
 	}
 
 	if (backing_path.dentry->d_parent == mi->mi_index_dir) {
@@ -1767,7 +1747,6 @@ static int dir_unlink(struct inode *dir, struct dentry *dentry)
 	d_drop(dentry);
 out:
 	path_put(&backing_path);
-path_err:
 	if (err)
 		pr_debug("incfs: %s err:%d\n", __func__, err);
 	mutex_unlock(&mi->mi_dir_struct_mutex);
@@ -1781,9 +1760,6 @@ static int dir_link(struct dentry *old_dentry, struct inode *dir,
 	struct path backing_old_path = {};
 	struct path backing_new_path = {};
 	int error = 0;
-
-	if (!mi)
-		return -EBADF;
 
 	error = mutex_lock_interruptible(&mi->mi_dir_struct_mutex);
 	if (error)
@@ -1831,9 +1807,6 @@ static int dir_rmdir(struct inode *dir, struct dentry *dentry)
 	struct path backing_path = {};
 	int err = 0;
 
-	if (!mi)
-		return -EBADF;
-
 	err = mutex_lock_interruptible(&mi->mi_dir_struct_mutex);
 	if (err)
 		return err;
@@ -1841,7 +1814,7 @@ static int dir_rmdir(struct inode *dir, struct dentry *dentry)
 	get_incfs_backing_path(dentry, &backing_path);
 	if (!backing_path.dentry) {
 		err = -EBADF;
-		goto path_err;
+		goto out;
 	}
 
 	if (backing_path.dentry == mi->mi_index_dir) {
@@ -1855,8 +1828,6 @@ static int dir_rmdir(struct inode *dir, struct dentry *dentry)
 		d_drop(dentry);
 out:
 	path_put(&backing_path);
-
-path_err:
 	if (err)
 		pr_debug("incfs: %s err:%d\n", __func__, err);
 	mutex_unlock(&mi->mi_dir_struct_mutex);
@@ -1940,14 +1911,7 @@ static int file_open(struct inode *inode, struct file *file)
 	struct path backing_path = {};
 	int err = 0;
 
-	if (!mi)
-		return -EBADF;
-
 	get_incfs_backing_path(file->f_path.dentry, &backing_path);
-
-	if (!backing_path.dentry)
-		return -EBADF;
-
 	backing_file = dentry_open(
 		&backing_path, O_RDWR | O_NOATIME | O_LARGEFILE, mi->mi_owner);
 	path_put(&backing_path);
@@ -2009,10 +1973,8 @@ static int dentry_revalidate(struct dentry *d, unsigned int flags)
 
 	get_incfs_backing_path(d, &backing_path);
 	backing_dentry = backing_path.dentry;
-	if (!backing_dentry) {
-		result = -EBADF;
+	if (!backing_dentry)
 		goto out;
-	}
 
 	if (d_inode(backing_dentry) != binode) {
 		/*
