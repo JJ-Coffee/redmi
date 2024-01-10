@@ -5425,14 +5425,11 @@ page_owner=on loop.max_part=7";
 
 /*Begonia Audio SmartPA Start */
 &i2c6 {
-        #address-cells = <2>;
-        #size-cells = <1>;
-        
         tfa98xx: tfa98xx@34 {
                 status = "ok";
                 compatible = "mediatek,speaker_amp";
                 #sound-dai-cells = <0>;
-                reg = <0x0 0x34 0x00>;
+                reg = <0x34>;
                 reset-gpio = <&pio 24 0>;
                 irq-gpio = <&pio 69 0>;
         };
