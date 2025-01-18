@@ -1,0 +1,31 @@
+name: Delete Non-Default Branches
+
+on:
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  clean-branches:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get default branch
+        id: default_branch
+        run: |
+          DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q '.defaultBranchRef.name')
+          echo "DEFAULT_BRANCH=$DEFAULT_BRANCH" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete non-default branches
+        run: |
+          for branch in $(git branch -r | grep -v "origin/HEAD" | grep -v "origin/$DEFAULT_BRANCH" | sed 's/origin\///'); do
+            echo "Deleting branch: $branch"
+            git push origin --delete $branch
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
