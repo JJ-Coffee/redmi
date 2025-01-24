@@ -8,6 +8,7 @@ config ANDROID_DEFAULT_SETTING
 	select ARM64_SW_TTBR0_PAN
 	select ARMV8_DEPRECATED if COMPAT
 	select ASHMEM
+	select AUDIT
 	select BINFMT_ELF
 	select BINFMT_SCRIPT
 	select BLK_DEV_INITRD
@@ -116,6 +117,8 @@ config ANDROID_DEFAULT_SETTING
 	select MAGIC_SYSRQ
 	select MD
 	select MEMBARRIER
+	select MEMCG
+	select MEMCG_SWAP
 	select MMU
 	select MODULES
 	select MODULE_UNLOAD
@@ -207,6 +210,7 @@ config ANDROID_DEFAULT_SETTING
 	select PREEMPT
 	select PROC_FS
 	select PROFILING
+	select PSI
 	select QFMT_V2
 	select QUOTA
 	select QUOTACTL
@@ -268,11 +272,10 @@ config MTK_ANDROID_DEFAULT_SETTING
 	bool "Select MTK android common setting by default"
 	select HW_RANDOM
 	select HW_RANDOM_MT67XX
-	select MTK_AEE_AED
-	select MTK_AEE_IPANIC if MTK_RAM_CONSOLE
 	select MTK_MIX_DEVICES
 	select NETFILTER_XT_MATCH_ESP
 	select PGTABLE_MAPPING if ZSMALLOC && (ARM || ARM64)
+	select PSI
 	select SPECULATIVE_PAGE_FAULT if (ARCH_SUPPORTS_SPECULATIVE_PAGE_FAULT && ARCH_HAS_PTE_SPECIAL && MMU && SMP)
 	help
 	  Select the MTK android config by default
