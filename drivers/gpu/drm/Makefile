@@ -92,18 +92,7 @@ obj-$(CONFIG_DRM_TEGRA) += tegra/
 obj-$(CONFIG_DRM_STM) += stm/
 obj-$(CONFIG_DRM_STI) += sti/
 obj-$(CONFIG_DRM_IMX) += imx/
-# Conditional inclusion based on configuration
-
-# Base MediaTek DRM support
-ifeq ($(CONFIG_DRM_MEDIATEK),y)
-obj-y += mediatek/
-endif
-
-# MediaTek DRM with BOMB features
-ifeq ($(CONFIG_DRM_MEDIATEK_BOMB),y)
-obj-y += mediatek/
-endif
-
+obj-$(CONFIG_DRM_MEDIATEK_BOMB) += mediatek/
 obj-$(CONFIG_DRM_MEDIATEK_CANNON) += mediatek_cannon/
 obj-$(CONFIG_DRM_MESON)	+= meson/
 obj-y			+= i2c/
