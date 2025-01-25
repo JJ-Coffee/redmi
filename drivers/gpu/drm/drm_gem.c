@@ -41,8 +41,7 @@
 #include <drm/drm_vma_manager.h>
 #include <drm/drm_gem.h>
 #include "drm_internal.h"
-#include "drivers/gpu/drm/mediatek/mtk_drm_mmp.h"
-"
+#include "mtk_drm_mmp.h"
 
 /** @file drm_gem.c
  *
