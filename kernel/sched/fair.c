@@ -11075,7 +11075,8 @@ more_balance:
 
 		if (need_active_balance(&env)) {
 			unsigned long flags;
-			int cpu = env.dst_cpu;
+			int cpu;
+			unsigned long util;
 
 			raw_spin_lock_irqsave(&busiest->lock, flags);
 
@@ -11104,7 +11105,8 @@ more_balance:
 			 * If cpu_util + new task_util is overutil,
 			 * we don't migrate this task.
 			 */
-			unsigned long util = cpu_util_without(cpu, busiest->curr) +
+			cpu = env.dst_cpu;
+			util = cpu_util_without(cpu, busiest->curr) +
 						task_util_est(busiest->curr);
 			if ((capacity_of(env.dst_cpu) * 1024) <
 			uclamp_rq_util_with(cpu_rq(cpu), util, busiest->curr) * capacity_margin) {
