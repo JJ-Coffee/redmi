@@ -2007,12 +2007,12 @@ err_clk_set_main:
 #endif
 }
 
-
+/* Unused this code
 static struct syscore_ops mtk_i2c_syscore_ops = {
 	.resume = mt_i2c_pll_resume,
 	.suspend = mt_i2c_pll_suspend,
 };
-
+*/
 #ifdef CONFIG_PM_SLEEP
 
 static int mt_i2c_suspend_noirq(struct device *dev)
