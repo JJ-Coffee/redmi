@@ -932,7 +932,7 @@ static void __printf_back_trace(struct xfrm_state_trace *trace, char *tag)
 	}
 #endif
 }
-
+/* Unused code
 static void xfrm_state_print_back_trace(struct xfrm_state *x)
 {
 	char *logtag = "alloc";
@@ -983,7 +983,7 @@ static void xfrm_state_print_refcount_back_trace(struct xfrm_state *x)
 	pr_info("[xfrm_state]====[ xfrm refcnt backtrace end x :%px ]===========\n", x);
 #endif
 }
-
+*/
 static  void
 xfrm_state_check_add_byspi_hlish(struct hlist_head *head, struct xfrm_state *new, char *func_name)
 {
