@@ -45,9 +45,10 @@ static void
 xfrm_state_check_add_byspi_hlish(struct hlist_head *head, struct xfrm_state *new, char *func_name);
 static void xfrm_state_check_del_byspi_hlish(struct xfrm_state *x, char *func_name);
 static void xfrm_state_get_back_trace(struct xfrm_state_trace *trace);
+/* Unused function
 static void xfrm_state_print_back_trace(struct xfrm_state *x);
 static void xfrm_state_print_refcount_back_trace(struct xfrm_state *x);
-
+*/
 static void xfrm_state_gc_task(struct work_struct *work);
 
 /* Each xfrm_state may be linked to two tables:
@@ -913,7 +914,7 @@ static void xfrm_state_get_back_trace(struct xfrm_state_trace *trace)
 	trace->when_sec = ts_nsc;
 #endif
 }
-
+/* Unused function
 static void __printf_back_trace(struct xfrm_state_trace *trace, char *tag)
 {
 #ifdef CONFIG_MTK_ENG_BUILD
@@ -932,7 +933,7 @@ static void __printf_back_trace(struct xfrm_state_trace *trace, char *tag)
 	}
 #endif
 }
-/* Unused code
+
 static void xfrm_state_print_back_trace(struct xfrm_state *x)
 {
 	char *logtag = "alloc";
