@@ -3249,7 +3249,6 @@ static void pwrap_irq_thread_init(void)
 {
 	pwrap_init_wake_lock(&pwrapThread_lock, "pwrapThread_lock wakelock");
 
-	/* create pwrap irq thread handler*//*
 	pwrap_thread_handle = kthread_create(pwrap_thread_kthread,
 					    (void *)NULL, "pwrap_thread");
 	if (IS_ERR(pwrap_thread_handle)) {
