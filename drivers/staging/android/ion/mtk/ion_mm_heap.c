@@ -294,11 +294,11 @@ int ion_get_domain_id(int from_kernel, int *port)
 static int ion_mm_heap_phys(struct ion_heap *heap, struct ion_buffer *buffer,
 			    ion_phys_addr_t *addr, size_t *len);
 
+#if defined(CONFIG_MTK_IOMMU_PGTABLE_EXT) && \
+	(CONFIG_MTK_IOMMU_PGTABLE_EXT > 32)
 static int ion_mm_heap_init_domain(struct ion_mm_buffer_info *buffer_info,
 				   unsigned int domain)
 {
-#if defined(CONFIG_MTK_IOMMU_PGTABLE_EXT) && \
-	(CONFIG_MTK_IOMMU_PGTABLE_EXT > 32)
 	int i;
 	unsigned int start = 0, end = 0;
 	struct sg_table *table = buffer_info->table_orig;
@@ -336,10 +336,10 @@ static int ion_mm_heap_init_domain(struct ion_mm_buffer_info *buffer_info,
 			return -2;
 		}
 	}
-#endif
 
 	return 0;
 }
+#endif
 
 static int ion_mm_heap_allocate(struct ion_heap *heap,
 				struct ion_buffer *buffer, unsigned long size,
