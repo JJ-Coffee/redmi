@@ -45,10 +45,10 @@ static void
 xfrm_state_check_add_byspi_hlish(struct hlist_head *head, struct xfrm_state *new, char *func_name);
 static void xfrm_state_check_del_byspi_hlish(struct xfrm_state *x, char *func_name);
 static void xfrm_state_get_back_trace(struct xfrm_state_trace *trace);
-/* Unused function
+#ifdef CONFIG_MTK_ENG_BUILD
 static void xfrm_state_print_back_trace(struct xfrm_state *x);
 static void xfrm_state_print_refcount_back_trace(struct xfrm_state *x);
-*/
+#endif
 static void xfrm_state_gc_task(struct work_struct *work);
 
 /* Each xfrm_state may be linked to two tables:
@@ -914,10 +914,10 @@ static void xfrm_state_get_back_trace(struct xfrm_state_trace *trace)
 	trace->when_sec = ts_nsc;
 #endif
 }
-/* Unused function
+
+#ifdef CONFIG_MTK_ENG_BUILD
 static void __printf_back_trace(struct xfrm_state_trace *trace, char *tag)
 {
-#ifdef CONFIG_MTK_ENG_BUILD
 	int i;
 
 	if (!trace->count) {
@@ -931,9 +931,10 @@ static void __printf_back_trace(struct xfrm_state_trace *trace, char *tag)
 			pr_info("[xfrm_state][%d][<%p>] %pS\n", trace->count
 				, (void *)trace->addrs[i], (void *)trace->addrs[i]);
 	}
-#endif
 }
+#endif
 
+#ifdef CONFIG_MTK_ENG_BUILD
 static void xfrm_state_print_back_trace(struct xfrm_state *x)
 {
 	char *logtag = "alloc";
@@ -948,10 +949,11 @@ static void xfrm_state_print_back_trace(struct xfrm_state *x)
 	logtag = "insert";
 	__printf_back_trace(&x->xfrm_insert_trace, logtag);
 }
+#endif
 
+#ifdef CONFIG_MTK_ENG_BUILD
 static void xfrm_state_print_refcount_back_trace(struct xfrm_state *x)
 {
-#ifdef CONFIG_MTK_ENG_BUILD
 	int i, idx, size;
 	unsigned int tmp, pid;
 	struct xfrm_state_trace *trace;
@@ -982,9 +984,9 @@ static void xfrm_state_print_refcount_back_trace(struct xfrm_state *x)
 		}
 	}
 	pr_info("[xfrm_state]====[ xfrm refcnt backtrace end x :%px ]===========\n", x);
-#endif
 }
-*/
+#endif
+
 static  void
 xfrm_state_check_add_byspi_hlish(struct hlist_head *head, struct xfrm_state *new, char *func_name)
 {
