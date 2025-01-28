@@ -15,8 +15,8 @@
 #ifndef _ISEE_IMSG_LOG_H_
 #define _ISEE_IMSG_LOG_H_
 
-#ifndef IMSG_TAG
-#define IMSG_TAG "[ISEE DRV]"
+#ifndef IMSG_TAG_LOG
+#define IMSG_TAG_LOG "[ISEE DRV]"
 #endif
 
 enum {
@@ -66,7 +66,7 @@ static inline unsigned long now_ms(void)
 #define IMSG_PRINT(level, func, fmt, ...) \
 	do { \
 		if (level <= get_imsg_log_level()) \
-			IMSG_PRINT_##func("%s[%s]: " fmt, IMSG_TAG, \
+			IMSG_PRINT_##func("%s[%s]: " fmt, IMSG_TAG_LOG, \
 				#func, ##__VA_ARGS__); \
 	} while (0)
 
