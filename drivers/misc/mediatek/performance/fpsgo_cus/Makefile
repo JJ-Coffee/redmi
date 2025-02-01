@@ -69,3 +69,12 @@ else
 		fpsgo-y += src/xgf_v3_ko_quark.o
 	endif
 endif
+
+# A dummy target that always runs (forcing a rebuild if needed)
+FORCE:
+
+# Rule to copy the prebuilt object into the output directory
+$(obj)/src/xgf_v3_ko_arm64.o: FORCE
+	@echo "Copying prebuilt xgf_v3_ko_arm64.o..."
+	cp $(srctree)/drivers/misc/mediatek/performance/fpsgo_cus/src/xgf_v3_ko_arm64.o $@
+	
