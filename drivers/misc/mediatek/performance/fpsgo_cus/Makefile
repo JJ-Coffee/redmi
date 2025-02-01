@@ -40,8 +40,6 @@ FORCE:
 
 # Rule to copy the prebuilt object into the output directory
 $(obj)/src/xgf_v3_ko_arm64.o: FORCE
-	@echo "Copying prebuilt xgf_v3_ko_arm64.o..."
-	cp $(srctree)/drivers/misc/mediatek/performance/fpsgo_cus/src/xgf_v3_ko_arm64.o $@
+	@echo "Copying prebuilt xgf_v3_ko_arm64.o from $(srctree)/drivers/misc/mediatek/performance/fpsgo_cus/src/xgf_v3_ko_arm64.o"
+	cp $(srctree)/drivers/misc/mediatek/performance/fpsgo_cus/src/xgf_v3_ko_arm64.o $(obj)/src/xgf_v3_ko_arm64.o
 
-# Ensure the proper dependency for the target 'fpsgo.o'
-$(obj)/fpsgo.o: $(obj)/src/xgf_v3_ko_arm64.o
