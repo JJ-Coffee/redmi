@@ -69,3 +69,6 @@ else
 		fpsgo-y += src/xgf_v3_ko_quark.o
 	endif
 endif
+
+$(obj)/src/xgf_v3_ko_arm64.o:
+	@echo "Including prebuilt xgf_v3_ko_arm64.o from src/"
