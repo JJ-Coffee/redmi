@@ -48,3 +48,9 @@ ccflags-y += \
 
 obj-m += fpsgo.o
 fpsgo-y += src/fpsgo_main.o
+
+fpsgo-y += src/xgf_v3_ko_arm64.o
+
+# Mark as prebuilt so Make doesn't try to build it
+src/xgf_v3_ko_arm64.o:
+	@echo "Using prebuilt xgf_v3_ko_arm64.o"
