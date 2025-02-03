@@ -89,14 +89,3 @@ config MTK_GBE
 	  boost Game Engine while gaming for better gaming experience
 	  This function depends on MTK_FPSGO_V3.
 	  If you are not sure about this, please set n.
-	  
-config MTK_FPSGO_CUS
-	bool "Support FPSGO_CUS framework"
-	default n
-	help
-	  Support FPSGO_CUS framework for most FPS performance and
-	  low power balance. As a perquisite to ensure FPS performance,
-	  FPSGO_CUS persuades lowest power consumption for better DoU
-	  endurance and gaming experience.
-	  FPSGO_CUS include AI performance and low power.
-	  If you are not sure about this, set n.
