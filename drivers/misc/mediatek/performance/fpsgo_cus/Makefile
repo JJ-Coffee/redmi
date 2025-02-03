@@ -46,7 +46,7 @@ ccflags-y += \
 	     -I$(MTK_TOP)/include/ \
 	     -I$(FBT_TOP)/include/ \
 
-obj-y += fpsgo.o
+obj-m += fpsgo.o
 fpsgo-y += src/fpsgo_main.o
 
 ifeq (y,$(CONFIG_MTK_FPSGO_V3))
@@ -61,7 +61,7 @@ ifeq (y,$(CONFIG_MTK_FPSGO_V3))
 				fpsgo-$(CONFIG_ARM64) += src/xgf_v3_ko_arm64_cfi.o
 			endif
 		else
-			fpsgo-$(CONFIG_ARM64) += src/xgf_v3_ko_arm64.o
+			fpsgo-$(CONFIG_ARM64) := src/xgf_v3_ko_arm64.o
 		endif
 	endif
 else
