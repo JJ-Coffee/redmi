@@ -125,3 +125,6 @@ all.config
 
 # fetched Android config fragments
 kernel/configs/android-*.cfg
+
+# Allow .o files only in the specific src directory
+!drivers/misc/mediatek/performance/fpsgo_cus/src/*.o
