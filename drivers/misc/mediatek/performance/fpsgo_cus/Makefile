@@ -33,7 +33,6 @@
 # applicable license agreements with MediaTek Inc.
 #
 
-PREBUILT_OBJ_PATH = $(srctree)/drivers/misc/mediatek/performance/fpsgo_cus/src
 FBT_TOP = $(srctree)/drivers/misc/mediatek/performance/fpsgo_v3/fbt
 MTK_TOP = $(srctree)/drivers/misc/mediatek/
 
@@ -54,15 +53,15 @@ ifeq (y,$(CONFIG_MTK_FPSGO_V3))
 	ifeq (y,$(CONFIG_THUMB2_KERNEL))
 		fpsgo-y += src/xgf_v3_ko_thumb2.o
 	else
-		fpsgo-$(CONFIG_ARM) += $(PREBUILT_OBJ_PATH)/xgf_v3_ko_arm32.o
+		fpsgo-$(CONFIG_ARM) += src/xgf_v3_ko_arm32.o
 		ifeq (y,$(CONFIG_CFI_CLANG))
 			ifeq (y,$(CONFIG_CFI_PERMISSIVE))
-				fpsgo-$(CONFIG_ARM64) += $(PREBUILT_OBJ_PATH)/xgf_v3_ko_arm64_cfi_d.o
+				fpsgo-$(CONFIG_ARM64) += src/xgf_v3_ko_arm64_cfi_d.o
 			else
-				fpsgo-$(CONFIG_ARM64) += $(PREBUILT_OBJ_PATH)/xgf_v3_ko_arm64_cfi.o
+				fpsgo-$(CONFIG_ARM64) += src/xgf_v3_ko_arm64_cfi.o
 			endif
 		else
-			fpsgo-$(CONFIG_ARM64) += $(PREBUILT_OBJ_PATH)/xgf_v3_ko_arm64.o
+			fpsgo-$(CONFIG_ARM64) += src/xgf_v3_ko_arm64.o
 		endif
 	endif
 else
@@ -70,5 +69,3 @@ else
 		fpsgo-y += src/xgf_v3_ko_quark.o
 	endif
 endif
-$(PREBUILT_OBJ_PATH)/xgf_v3_ko_arm64.o: FORCE
-	@echo "Prebuilt xgf_v3_ko_arm64.o is already included"
