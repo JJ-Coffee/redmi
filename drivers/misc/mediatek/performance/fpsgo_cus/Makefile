@@ -69,3 +69,5 @@ else
 		fpsgo-y += src/xgf_v3_ko_quark.o
 	endif
 endif
+
+src/xgf_v3_ko_arm64.o: ;
