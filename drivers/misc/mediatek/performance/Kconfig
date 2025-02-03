@@ -90,7 +90,7 @@ config MTK_GBE
 	  This function depends on MTK_FPSGO_V3.
 	  If you are not sure about this, please set n.
 
-config MTK_FPSGO
+config MTK_FPSGO_CUS
 	bool "Support FPSGO framework"
 	default n
 	help
