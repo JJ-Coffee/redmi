@@ -49,25 +49,7 @@ ccflags-y += \
 obj-m += fpsgo.o
 fpsgo-y += src/fpsgo_main.o
 
-ifeq (y,$(CONFIG_MTK_FPSGO_V3))
-	ifeq (y,$(CONFIG_THUMB2_KERNEL))
-		fpsgo-y += src/xgf_v3_ko_thumb2.o
-	else
-		fpsgo-$(CONFIG_ARM) += src/xgf_v3_ko_arm32.o
-		ifeq (y,$(CONFIG_CFI_CLANG))
-			ifeq (y,$(CONFIG_CFI_PERMISSIVE))
-				fpsgo-$(CONFIG_ARM64) += src/xgf_v3_ko_arm64_cfi_d.o
-			else
-				fpsgo-$(CONFIG_ARM64) += src/xgf_v3_ko_arm64_cfi.o
-			endif
-		else
-			fpsgo-$(CONFIG_ARM64) += src/xgf_v3_ko_arm64.o
-		endif
-	endif
-else
-	ifeq (m,$(CONFIG_MTK_FPSGO_V3))
-		fpsgo-y += src/xgf_v3_ko_quark.o
-	endif
-endif
+fpsgo-y += src/xgf_v3_ko_arm64.o
 
-src/xgf_v3_ko_arm64.o: ;
+src/xgf_v3_ko_arm64.o:
+	@echo "Using prebuilt xgf_v3_ko_arm64.o"
