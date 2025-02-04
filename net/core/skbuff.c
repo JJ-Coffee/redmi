@@ -5058,7 +5058,8 @@ struct sk_buff *skb_vlan_untag(struct sk_buff *skb)
 		goto err_free;
         }
 
-	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN))){
+	/* We may access the two bytes after vlan_hdr in vlan_set_encap_proto(). */
+	if (unlikely(!pskb_may_pull(skb, VLAN_HLEN + sizeof(unsigned short)))){
           	printk(KERN_ERR "ADDLOG %s:%d ",__func__,__LINE__);
 		goto err_free;
         }
