@@ -1,0 +1,53 @@
+a929037d0ea9 Merge 4.14.195 into android-4.14-stable
+d7e78d08fa77 Linux 4.14.195
+d4768573159b KVM: arm/arm64: Don't reschedule in unmap_stage2_range()
+f114a3624681 clk: Evict unregistered clks from parent caches
+877ed468614c xen: don't reschedule in preemption off sections
+85ce79dd9343 mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible
+6875d79ba740 do_epoll_ctl(): clean the failure exits up a bit
+7867516bcbc5 epoll: Keep a reference on files added to the check list
+7fc6f022dead powerpc/pseries: Do not initiate shutdown when system is running on UPS
+b5ce9e60c76f net: dsa: b53: check for timeout
+30cb922fdc59 hv_netvsc: Fix the queue_mapping in netvsc_vf_xmit()
+5ca8e51f09ff bonding: fix active-backup failover for current ARP slave
+36e839f9c0f4 vfio/type1: Add proper error unwind for vfio_iommu_replay()
+9a9fca9ad05a ASoC: intel: Fix memleak in sst_media_open
+b6ee1e72f7a9 ASoC: msm8916-wcd-analog: fix register Interrupt offset
+b128bd1cd1e1 bonding: fix a potential double-unregister
+fcb549293e51 bonding: show saner speed for broadcast mode
+b1feb356d983 net: fec: correct the error path for regulator disable in probe
+12427446b40d i40e: Fix crash during removing i40e driver
+32da7d0a9cff i40e: Set RX_ONLY mode for unicast promiscuous on VLAN
+fbbfd55a40d5 ext4: fix potential negative array index in do_split()
+d254a3e6c3b9 alpha: fix annotation of io{read,write}{16,32}be()
+1f37616ecb66 xfs: Fix UBSAN null-ptr-deref in xfs_sysfs_init
+1f49e8cefa5a virtio_ring: Avoid loop when vq is broken in virtqueue_poll
+9b5681afc9e6 scsi: libfc: Free skb in fc_disc_gpn_id_resp() for valid cases
+8281409d9ed3 cpufreq: intel_pstate: Fix cpuinfo_max_freq when MSR_TURBO_RATIO_LIMIT is 0
+f851d159b2b1 jffs2: fix UAF problem
+5d53c0bf7dbb xfs: fix inode quota reservation checks
+951e12c66ea4 m68knommu: fix overwriting of bits in ColdFire V3 cache control
+d3eb5be2b7a7 Input: psmouse - add a newline when printing 'proto' by sysfs
+d18cbd381c83 media: vpss: clean up resources in init
+59e8bcc1f6fa rtc: goldfish: Enable interrupt in set_alarm() when necessary
+87f1b49ee84f media: budget-core: Improve exception handling in budget_register()
+046f3765d4cc scsi: ufs: Add DELAY_BEFORE_LPM quirk for Micron devices
+413a0634d56b spi: Prevent adding devices below an unregistering controller
+81545a2affa2 jbd2: add the missing unlock_buffer() in the error path of jbd2_write_superblock()
+f9d723d0b788 ext4: fix checking of directory entry validity for inline directories
+0063bb829eba mm, page_alloc: fix core hung in free_pcppages_bulk()
+d93b51bcceb2 mm: include CMA pages in lowmem_reserve at boot
+6b7be0bc036b kernel/relay.c: fix memleak on destroy relay channel
+89346bc395e7 romfs: fix uninitialized memory leak in romfs_dev_read()
+58253e22b610 btrfs: sysfs: use NOFS for device creation
+e0b8bbf26492 btrfs: inode: fix NULL pointer dereference if inode doesn't need compression
+c05c73db96b3 btrfs: Move free_pages_out label in inline extent handling branch in compress_file_range
+82ba99cfbdc4 btrfs: don't show full path of bind mounts in subvol=
+847745154e2e btrfs: export helpers for subvolume name/id resolution
+8af919714c19 powerpc: Allow 4224 bytes of stack expansion for the signal frame
+55069b03922a powerpc/mm: Only read faulting instruction when necessary in do_page_fault()
+d45ce5e48289 khugepaged: adjust VM_BUG_ON_MM() in __khugepaged_enter()
+0b383dae5f81 khugepaged: khugepaged_test_exit() check mmget_still_valid()
+61c4decf3743 perf probe: Fix memory leakage when the probe point is not found
+5a9ed4e6591c drm/vgem: Replace opencoded version of drm_gem_dumb_map_offset()
+869a7e5bbe8c ANDROID: virtio_gpu.h: move map/unmap to 3d group
