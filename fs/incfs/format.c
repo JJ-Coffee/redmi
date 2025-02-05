@@ -43,7 +43,7 @@ void incfs_free_bfc(struct backing_file_context *bfc)
 	kfree(bfc);
 }
 
-loff_t incfs_get_end_offset(struct file *f)
+static loff_t incfs_get_end_offset(struct file *f)
 {
 	/*
 	 * This function assumes that file size and the end-offset
@@ -92,11 +92,42 @@ static int truncate_backing_file(struct backing_file_context *bfc,
 	return result;
 }
 
+static int write_to_bf(struct backing_file_context *bfc, const void *buf,
+			size_t count, loff_t pos)
+{
+	ssize_t res = incfs_kwrite(bfc->bc_file, buf, count, pos);
+
+	if (res < 0)
+		return res;
+	if (res != count)
+		return -EIO;
+	return 0;
+}
+
+static int append_zeros_no_fallocate(struct backing_file_context *bfc,
+				     size_t file_size, size_t len)
+{
+	u8 buffer[256] = {};
+	size_t i;
+
+	for (i = 0; i < len; i += sizeof(buffer)) {
+		int to_write = len - i > sizeof(buffer)
+			? sizeof(buffer) : len - i;
+		int err = write_to_bf(bfc, buffer, to_write, file_size + i);
+
+		if (err)
+			return err;
+	}
+
+	return 0;
+}
+
 /* Append a given number of zero bytes to the end of the backing file. */
 static int append_zeros(struct backing_file_context *bfc, size_t len)
 {
 	loff_t file_size = 0;
 	loff_t new_last_byte_offset = 0;
+	int result;
 
 	if (!bfc)
 		return -EFAULT;
@@ -113,39 +144,11 @@ static int append_zeros(struct backing_file_context *bfc, size_t len)
 	 */
 	file_size = incfs_get_end_offset(bfc->bc_file);
 	new_last_byte_offset = file_size + len - 1;
-	return vfs_fallocate(bfc->bc_file, 0, new_last_byte_offset, 1);
-}
+	result = vfs_fallocate(bfc->bc_file, 0, new_last_byte_offset, 1);
+	if (result != -EOPNOTSUPP)
+		return result;
 
-static int write_to_bf(struct backing_file_context *bfc, const void *buf,
-			size_t count, loff_t pos)
-{
-	ssize_t res = incfs_kwrite(bfc, buf, count, pos);
-
-	if (res < 0)
-		return res;
-	if (res != count)
-		return -EIO;
-	return 0;
-}
-
-static u32 calc_md_crc(struct incfs_md_header *record)
-{
-	u32 result = 0;
-	__le32 saved_crc = record->h_record_crc;
-	__le64 saved_md_offset = record->h_next_md_offset;
-	size_t record_size = min_t(size_t, le16_to_cpu(record->h_record_size),
-				INCFS_MAX_METADATA_RECORD_SIZE);
-
-	/* Zero fields which needs to be excluded from CRC calculation. */
-	record->h_record_crc = 0;
-	record->h_next_md_offset = 0;
-	result = crc32(0, record, record_size);
-
-	/* Restore excluded fields. */
-	record->h_record_crc = saved_crc;
-	record->h_next_md_offset = saved_md_offset;
-
-	return result;
+	return append_zeros_no_fallocate(bfc, file_size, len);
 }
 
 /*
@@ -171,9 +174,7 @@ static int append_md_to_backing_file(struct backing_file_context *bfc,
 
 	record_size = le16_to_cpu(record->h_record_size);
 	file_pos = incfs_get_end_offset(bfc->bc_file);
-	record->h_prev_md_offset = cpu_to_le64(bfc->bc_last_md_record_offset);
 	record->h_next_md_offset = 0;
-	record->h_record_crc = cpu_to_le32(calc_md_crc(record));
 
 	/* Write the metadata record to the end of the backing file */
 	record_offset = file_pos;
@@ -205,16 +206,6 @@ static int append_md_to_backing_file(struct backing_file_context *bfc,
 
 	bfc->bc_last_md_record_offset = record_offset;
 	return result;
-}
-
-int incfs_write_file_header_flags(struct backing_file_context *bfc, u32 flags)
-{
-	if (!bfc)
-		return -EFAULT;
-
-	return write_to_bf(bfc, &flags, sizeof(flags),
-			   offsetof(struct incfs_file_header,
-				    fh_file_header_flags));
 }
 
 /*
@@ -362,10 +353,57 @@ err:
 	return result;
 }
 
+static int write_new_status_to_backing_file(struct backing_file_context *bfc,
+				       u32 blocks_written)
+{
+	struct incfs_status is = {};
+	int result;
+	loff_t rollback_pos;
+
+	if (!bfc)
+		return -EFAULT;
+
+	LOCK_REQUIRED(bfc->bc_mutex);
+
+	rollback_pos = incfs_get_end_offset(bfc->bc_file);
+
+	is.is_header.h_md_entry_type = INCFS_MD_STATUS;
+	is.is_header.h_record_size = cpu_to_le16(sizeof(is));
+	is.is_blocks_written = cpu_to_le32(blocks_written);
+
+	result = append_md_to_backing_file(bfc, &is.is_header);
+	if (result)
+		truncate_backing_file(bfc, rollback_pos);
+
+	return result;
+}
+
+int incfs_write_status_to_backing_file(struct backing_file_context *bfc,
+				       loff_t status_offset,
+				       u32 blocks_written)
+{
+	struct incfs_status is;
+	int result;
+
+	if (status_offset == 0)
+		return write_new_status_to_backing_file(bfc, blocks_written);
+
+	result = incfs_kread(bfc->bc_file, &is, sizeof(is), status_offset);
+	if (result != sizeof(is))
+		return -EIO;
+
+	is.is_blocks_written = cpu_to_le32(blocks_written);
+	result = incfs_kwrite(bfc->bc_file, &is, sizeof(is), status_offset);
+	if (result != sizeof(is))
+		return -EIO;
+
+	return 0;
+}
+
 /*
  * Write a backing file header
  * It should always be called only on empty file.
- * incfs_super_block.s_first_md_offset is 0 for now, but will be updated
+ * fh.fh_first_md_offset is 0 for now, but will be updated
  * once first metadata record is added.
  */
 int incfs_write_fh_to_backing_file(struct backing_file_context *bfc,
@@ -385,6 +423,38 @@ int incfs_write_fh_to_backing_file(struct backing_file_context *bfc,
 
 	fh.fh_file_size = cpu_to_le64(file_size);
 	fh.fh_uuid = *uuid;
+
+	LOCK_REQUIRED(bfc->bc_mutex);
+
+	file_pos = incfs_get_end_offset(bfc->bc_file);
+	if (file_pos != 0)
+		return -EEXIST;
+
+	return write_to_bf(bfc, &fh, sizeof(fh), file_pos);
+}
+
+/*
+ * Write a backing file header for a mapping file
+ * It should always be called only on empty file.
+ */
+int incfs_write_mapping_fh_to_backing_file(struct backing_file_context *bfc,
+				incfs_uuid_t *uuid, u64 file_size, u64 offset)
+{
+	struct incfs_file_header fh = {};
+	loff_t file_pos = 0;
+
+	if (!bfc)
+		return -EFAULT;
+
+	fh.fh_magic = cpu_to_le64(INCFS_MAGIC_NUMBER);
+	fh.fh_version = cpu_to_le64(INCFS_FORMAT_CURRENT_VER);
+	fh.fh_header_size = cpu_to_le16(sizeof(fh));
+	fh.fh_original_offset = cpu_to_le64(offset);
+	fh.fh_data_block_size = cpu_to_le16(INCFS_DATA_FILE_BLOCK_SIZE);
+
+	fh.fh_mapped_file_size = cpu_to_le64(file_size);
+	fh.fh_original_uuid = *uuid;
+	fh.fh_flags = cpu_to_le32(INCFS_FILE_MAPPED);
 
 	LOCK_REQUIRED(bfc->bc_mutex);
 
@@ -470,32 +540,8 @@ int incfs_write_hash_block_to_backing_file(struct backing_file_context *bfc,
 	bm_entry.me_data_offset_lo = cpu_to_le32((u32)data_offset);
 	bm_entry.me_data_offset_hi = cpu_to_le16((u16)(data_offset >> 32));
 	bm_entry.me_data_size = cpu_to_le16(INCFS_DATA_FILE_BLOCK_SIZE);
-	bm_entry.me_flags = cpu_to_le16(INCFS_BLOCK_HASH);
 
 	return write_to_bf(bfc, &bm_entry, sizeof(bm_entry), bm_entry_off);
-}
-
-/* Initialize a new image in a given backing file. */
-int incfs_make_empty_backing_file(struct backing_file_context *bfc,
-				  incfs_uuid_t *uuid, u64 file_size)
-{
-	int result = 0;
-
-	if (!bfc || !bfc->bc_file)
-		return -EFAULT;
-
-	result = mutex_lock_interruptible(&bfc->bc_mutex);
-	if (result)
-		goto out;
-
-	result = truncate_backing_file(bfc, 0);
-	if (result)
-		goto out;
-
-	result = incfs_write_fh_to_backing_file(bfc, uuid, file_size);
-out:
-	mutex_unlock(&bfc->bc_mutex);
-	return result;
 }
 
 int incfs_read_blockmap_entry(struct backing_file_context *bfc, int block_index,
@@ -550,7 +596,7 @@ int incfs_read_file_header(struct backing_file_context *bfc,
 	if (!bfc || !first_md_off)
 		return -EFAULT;
 
-	bytes_read = incfs_kread(bfc, &fh, sizeof(fh), 0);
+	bytes_read = incfs_kread(bfc->bc_file, &fh, sizeof(fh), 0);
 	if (bytes_read < 0)
 		return bytes_read;
 
@@ -576,7 +622,7 @@ int incfs_read_file_header(struct backing_file_context *bfc,
 	if (file_size)
 		*file_size = le64_to_cpu(fh.fh_file_size);
 	if (flags)
-		*flags = le32_to_cpu(fh.fh_file_header_flags);
+		*flags = le32_to_cpu(fh.fh_flags);
 	return 0;
 }
 
@@ -591,14 +637,11 @@ int incfs_read_next_metadata_record(struct backing_file_context *bfc,
 	ssize_t bytes_read = 0;
 	size_t md_record_size = 0;
 	loff_t next_record = 0;
-	loff_t prev_record = 0;
 	int res = 0;
 	struct incfs_md_header *md_hdr = NULL;
 
 	if (!bfc || !handler)
 		return -EFAULT;
-
-	LOCK_REQUIRED(bfc->bc_mutex);
 
 	if (handler->md_record_offset == 0)
 		return -EPERM;
@@ -613,7 +656,6 @@ int incfs_read_next_metadata_record(struct backing_file_context *bfc,
 
 	md_hdr = &handler->md_buffer.md_header;
 	next_record = le64_to_cpu(md_hdr->h_next_md_offset);
-	prev_record = le64_to_cpu(md_hdr->h_prev_md_offset);
 	md_record_size = le16_to_cpu(md_hdr->h_record_size);
 
 	if (md_record_size > max_md_size) {
@@ -633,16 +675,6 @@ int incfs_read_next_metadata_record(struct backing_file_context *bfc,
 		return -EBADMSG;
 	}
 
-	if (prev_record != handler->md_prev_record_offset) {
-		pr_warn("incfs: Metadata chain has been corrupted.");
-		return -EBADMSG;
-	}
-
-	if (le32_to_cpu(md_hdr->h_record_crc) != calc_md_crc(md_hdr)) {
-		pr_warn("incfs: Metadata CRC mismatch.");
-		return -EBADMSG;
-	}
-
 	switch (md_hdr->h_md_entry_type) {
 	case INCFS_MD_NONE:
 		break;
@@ -652,14 +684,20 @@ int incfs_read_next_metadata_record(struct backing_file_context *bfc,
 				&handler->md_buffer.blockmap, handler);
 		break;
 	case INCFS_MD_FILE_ATTR:
-		if (handler->handle_file_attr)
-			res = handler->handle_file_attr(
-				&handler->md_buffer.file_attr, handler);
+		/*
+		 * File attrs no longer supported, ignore section for
+		 * compatibility
+		 */
 		break;
 	case INCFS_MD_SIGNATURE:
 		if (handler->handle_signature)
 			res = handler->handle_signature(
 				&handler->md_buffer.signature, handler);
+		break;
+	case INCFS_MD_STATUS:
+		if (handler->handle_status)
+			res = handler->handle_status(
+				&handler->md_buffer.status, handler);
 		break;
 	default:
 		res = -ENOTSUPP;
