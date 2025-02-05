@@ -16,8 +16,7 @@
 #include "format.h"
 #include "data_mgmt.h"
 
-struct backing_file_context *incfs_alloc_bfc(struct mount_info *mi,
-					     struct file *backing_file)
+struct backing_file_context *incfs_alloc_bfc(struct file *backing_file)
 {
 	struct backing_file_context *result = NULL;
 
@@ -26,7 +25,6 @@ struct backing_file_context *incfs_alloc_bfc(struct mount_info *mi,
 		return ERR_PTR(-ENOMEM);
 
 	result->bc_file = get_file(backing_file);
-	result->bc_cred = mi->mi_owner;
 	mutex_init(&result->bc_mutex);
 	return result;
 }
