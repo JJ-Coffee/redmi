@@ -542,7 +542,7 @@ int incfs_read_blockmap_entries(struct backing_file_context *bfc,
 	if (start_index < 0 || bm_base_off <= 0)
 		return -ENODATA;
 
-	result = incfs_kread(bfc, entries, bytes_to_read, bm_entry_off);
+	result = incfs_kread(bfc->bc_file, entries, bytes_to_read, bm_entry_off);
 	if (result < 0)
 		return result;
 	return result / sizeof(*entries);
@@ -609,7 +609,7 @@ int incfs_read_next_metadata_record(struct backing_file_context *bfc,
 		return -EPERM;
 
 	memset(&handler->md_buffer, 0, max_md_size);
-	bytes_read = incfs_kread(bfc, &handler->md_buffer, max_md_size,
+	bytes_read = incfs_kread(bfc->bc_file, &handler->md_buffer, max_md_size,
 				 handler->md_record_offset);
 	if (bytes_read < 0)
 		return bytes_read;
@@ -681,22 +681,12 @@ int incfs_read_next_metadata_record(struct backing_file_context *bfc,
 	return res;
 }
 
-ssize_t incfs_kread(struct backing_file_context *bfc, void *buf, size_t size,
-		    loff_t pos)
+ssize_t incfs_kread(struct file *f, void *buf, size_t size, loff_t pos)
 {
-	const struct cred *old_cred = override_creds(bfc->bc_cred);
-	int ret = kernel_read(bfc->bc_file, buf, size, &pos);
-
-	revert_creds(old_cred);
-	return ret;
+	return kernel_read(f, buf, size, &pos);
 }
 
-ssize_t incfs_kwrite(struct backing_file_context *bfc, const void *buf,
-		     size_t size, loff_t pos)
+ssize_t incfs_kwrite(struct file *f, const void *buf, size_t size, loff_t pos)
 {
-	const struct cred *old_cred = override_creds(bfc->bc_cred);
-	int ret = kernel_write(bfc->bc_file, buf, size, &pos);
-
-	revert_creds(old_cred);
-	return ret;
+	return kernel_write(f, buf, size, &pos);
 }
