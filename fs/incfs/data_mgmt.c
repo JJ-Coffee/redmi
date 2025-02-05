@@ -245,7 +245,7 @@ struct data_file *incfs_open_data_file(struct mount_info *mi, struct file *bf)
 	if (!S_ISREG(bf->f_inode->i_mode))
 		return ERR_PTR(-EBADF);
 
-	bfc = incfs_alloc_bfc(mi, bf);
+	bfc = incfs_alloc_bfc(bf);
 	if (IS_ERR(bfc))
 		return ERR_CAST(bfc);
 
