@@ -684,6 +684,7 @@ struct perf_event {
 	struct perf_addr_filters_head	addr_filters;
 	/* vma address array for file-based filders */
 	struct perf_addr_filter_range	*addr_filter_ranges;
+	unsigned long			*addr_filters_offs;
 	unsigned long			addr_filters_gen;
 
 	void (*destroy)(struct perf_event *);
