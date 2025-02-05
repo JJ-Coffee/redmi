@@ -306,8 +306,7 @@ struct metadata_handler {
 
 /* Backing file context management */
 struct mount_info;
-struct backing_file_context *incfs_alloc_bfc(struct mount_info *mi,
-					     struct file *backing_file);
+struct backing_file_context *incfs_alloc_bfc(struct file *backing_file);
 
 void incfs_free_bfc(struct backing_file_context *bfc);
 
