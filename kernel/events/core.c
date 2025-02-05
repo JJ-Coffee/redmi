@@ -8473,7 +8473,7 @@ static void perf_event_addr_filters_apply(struct perf_event *event)
 		 */
 		if (filter->path.dentry)
 			event->addr_filters_offs[count] =
-				perf_addr_filter_apply(filter, mm);
+				perf_addr_filter_apply(filter, mm, fr);
 
 		count++;
 	}
