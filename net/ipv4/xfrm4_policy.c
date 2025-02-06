@@ -245,8 +245,7 @@ static void xfrm4_dst_destroy(struct dst_entry *dst)
 	struct xfrm_dst *xdst = (struct xfrm_dst *)dst;
 
 	dst_destroy_metrics_generic(dst);
-	if (xdst->u.rt.rt_uncached_list)
-		rt_del_uncached_list(&xdst->u.rt);
+
 	xfrm_dst_destroy(xdst);
 }
 
