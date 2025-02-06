@@ -1487,17 +1487,6 @@ static bool rt_cache_route(struct fib_nh *nh, struct rtable *rt)
 
 static void ipv4_dst_destroy(struct dst_entry *dst)
 {
-	if (!list_empty(&rt->rt_uncached)) {
-		struct uncached_list *ul = rt->rt_uncached_list;
-
-		spin_lock_bh(&ul->lock);
-		list_del(&rt->rt_uncached);
-		spin_unlock_bh(&ul->lock);
-	}
-}
-
-static void ipv4_dst_destroy(struct dst_entry *dst)
-{
 	struct dst_metrics *p = (struct dst_metrics *)DST_METRICS_PTR(dst);
 	struct rtable *rt = (struct rtable *)dst;
 
