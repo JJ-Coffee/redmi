@@ -1669,25 +1669,7 @@ static int device_intersect_crypto_modes(struct dm_target *ti,
  *
  * Assume that 'q->ksm' initially declares all modes to be supported.
  */
-static void dm_calculate_supported_crypto_modes(struct dm_table *t,
-						struct request_queue *q)
-{
-	struct dm_target *ti;
-	unsigned int i;
 
-	for (i = 0; i < dm_table_get_num_targets(t); i++) {
-		ti = dm_table_get_target(t, i);
-
-		if (!ti->may_passthrough_inline_crypto) {
-			keyslot_manager_intersect_modes(q->ksm, NULL);
-			return;
-		}
-		if (!ti->type->iterate_devices)
-			continue;
-		ti->type->iterate_devices(ti, device_intersect_crypto_modes,
-					  q->ksm);
-	}
-}
 #else /* CONFIG_BLK_INLINE_ENCRYPTION */
 static inline void dm_calculate_supported_crypto_modes(struct dm_table *t,
 						       struct request_queue *q)
