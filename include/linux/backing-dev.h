@@ -494,9 +494,6 @@ static inline int bdi_rw_congested(struct backing_dev_info *bdi)
 				  (1 << WB_async_congested));
 }
 
-<<<<<<< HEAD
-const char *bdi_dev_name(struct backing_dev_info *bdi);
-=======
 extern const char *bdi_unknown_name;
 
 static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
@@ -505,6 +502,5 @@ static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
 		return bdi_unknown_name;
 	return dev_name(bdi->dev);
 }
->>>>>>> d24cf6d0d72a (memcg: fix a crash in wb_workfn when a device disappears)
 
 #endif	/* _LINUX_BACKING_DEV_H */
