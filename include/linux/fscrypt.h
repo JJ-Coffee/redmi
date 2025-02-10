@@ -271,7 +271,7 @@ static inline void fscrypt_free_filename(struct fscrypt_name *fname)
 int fscrypt_fname_alloc_buffer(const struct inode *inode, u32 max_encrypted_len,
 			       struct fscrypt_str *crypto_str);
 void fscrypt_fname_free_buffer(struct fscrypt_str *crypto_str);
-int fscrypt_fname_disk_to_usr(const struct inode *inode,
+int fscrypt_fname_disk_to_usr( struct inode *inode,
 			      u32 hash, u32 minor_hash,
 			      const struct fscrypt_str *iname,
 			      struct fscrypt_str *oname);
