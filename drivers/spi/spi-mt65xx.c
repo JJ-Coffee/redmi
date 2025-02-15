@@ -27,7 +27,7 @@
 #include <linux/spi/spi.h>
 #include <linux/dma-mapping.h>
 #include <linux/pm_qos.h>
-#include <linux/delay.h>
+
 
 #define SPI_CFG0_REG                      0x0000
 #define SPI_CFG1_REG                      0x0004
