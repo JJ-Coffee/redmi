@@ -117,7 +117,7 @@ static void __wakelocks_gc(struct work_struct *work)
 			break;
 
 		if (!active) {
-			wakeup_source_unregister(wl->ws);
+			wakeup_source_remove(&wl->ws);
 			rb_erase(&wl->node, &wakelocks_tree);
 			list_del(&wl->lru);
 			kfree(wl->name);
@@ -184,14 +184,8 @@ static struct wakelock *wakelock_lookup_add(const char *name, size_t len,
 		return ERR_PTR(-ENOMEM);
 	}
 
-	wl->ws = wakeup_source_register(NULL, wl->name);
-	if (!wl->ws) {
-		kfree(wl->name);
-		kfree(wl);
-		return ERR_PTR(-ENOMEM);
-	}
-	wl->ws.last_time = ktime_get();
-
+	wl->ws.name = wl->name;
+	wakeup_source_add(&wl->ws);
 	rb_link_node(&wl->node, parent, node);
 	rb_insert_color(&wl->node, &wakelocks_tree);
 	wakelocks_lru_add(wl);
