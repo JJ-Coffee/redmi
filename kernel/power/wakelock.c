@@ -27,7 +27,7 @@ static DEFINE_MUTEX(wakelocks_lock);
 struct wakelock {
 	char			*name;
 	struct rb_node		node;
-	struct wakeup_source	*ws;
+	struct wakeup_source	ws;
 #ifdef CONFIG_PM_WAKELOCKS_GC
 	struct list_head	lru;
 #endif
@@ -108,10 +108,10 @@ static void __wakelocks_gc(struct work_struct *work)
 		u64 idle_time_ns;
 		bool active;
 
-		spin_lock_irq(&wl->ws->lock);
-		idle_time_ns = ktime_to_ns(ktime_sub(now, wl->ws->last_time));
-		active = wl->ws->active;
-		spin_unlock_irq(&wl->ws->lock);
+		spin_lock_irq(&wl->ws.lock);
+		idle_time_ns = ktime_to_ns(ktime_sub(now, wl->ws.last_time));
+		active = wl->ws.active;
+		spin_unlock_irq(&wl->ws.lock);
 
 		if (idle_time_ns < ((u64)WL_GC_TIME_SEC * NSEC_PER_SEC))
 			break;
@@ -190,7 +190,7 @@ static struct wakelock *wakelock_lookup_add(const char *name, size_t len,
 		kfree(wl);
 		return ERR_PTR(-ENOMEM);
 	}
-	wl->ws->last_time = ktime_get();
+	wl->ws.last_time = ktime_get();
 
 	rb_link_node(&wl->node, parent, node);
 	rb_insert_color(&wl->node, &wakelocks_tree);
