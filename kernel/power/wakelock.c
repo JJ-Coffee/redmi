@@ -229,9 +229,9 @@ int pm_wake_lock(const char *buf)
 		u64 timeout_ms = timeout_ns + NSEC_PER_MSEC - 1;
 
 		do_div(timeout_ms, NSEC_PER_MSEC);
-		__pm_wakeup_event(wl->ws, timeout_ms);
+		__pm_wakeup_event(&wl->ws, timeout_ms);
 	} else {
-		__pm_stay_awake(wl->ws);
+		__pm_stay_awake(&wl->ws);
 	}
 
 	wakelocks_lru_most_recent(wl);
@@ -267,7 +267,7 @@ int pm_wake_unlock(const char *buf)
 		ret = PTR_ERR(wl);
 		goto out;
 	}
-	__pm_relax(wl->ws);
+	__pm_relax(&wl->ws);
 
 	wakelocks_lru_most_recent(wl);
 	wakelocks_gc();
