@@ -142,24 +142,15 @@ static int fops_vcodec_release(struct file *file)
 {
 	struct mtk_vcodec_dev *dev = video_drvdata(file);
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(file->private_data);
-
-	mtk_v4l2_debug(0, "[%d] encoder", ctx->id);
+	mtk_v4l2_debug(1, "[%d] encoder", ctx->id);
 	mutex_lock(&dev->dev_mutex);
-
-	mtk_vcodec_enc_empty_queues(file, ctx);
-	mutex_lock(&ctx->worker_lock);
 	v4l2_m2m_ctx_release(ctx->m2m_ctx);
-	mutex_unlock(&ctx->worker_lock);
 	mtk_vcodec_enc_release(ctx);
 	v4l2_fh_del(&ctx->fh);
 	v4l2_fh_exit(&ctx->fh);
 	v4l2_ctrl_handler_free(&ctx->ctrl_hdl);
-
 	list_del_init(&ctx->list);
-	kfree(ctx->enc_flush_buf);
 	kfree(ctx);
-	if (dev->enc_cnt > 0)
-		dev->enc_cnt--;
 	mutex_unlock(&dev->dev_mutex);
 	return 0;
 }
