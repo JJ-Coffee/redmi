@@ -85,8 +85,8 @@ int __ext4_check_dir_entry(const char *function, unsigned int line,
 						dir->i_sb->s_blocksize);
 	const int next_offset = ((char *) de - buf) + rlen;
 	unsigned int blocksize = dir->i_sb->s_blocksize;
-	bool fake = is_fake_entry(dir, lblk, offset, blocksize);
-	bool next_fake = is_fake_entry(dir, lblk, next_offset, blocksize);
+	bool fake = is_fake_entry(dir, offset, blocksize);
+	bool next_fake = is_fake_entry(dir, next_offset, blocksize);
 
 	if (unlikely(rlen < ext4_dir_rec_len(1, fake ? NULL : dir)))
 		error_msg = "rec_len is smaller than minimal";
@@ -112,13 +112,13 @@ int __ext4_check_dir_entry(const char *function, unsigned int line,
 				"bad entry in directory: %s - offset=%u, "
 				"inode=%u, rec_len=%d, lblk=%d, size=%d fake=%d",
 				error_msg, offset, le32_to_cpu(de->inode),
-				rlen, lblk, size, fake);
+				rlen, size, fake);
 	else
 		ext4_error_inode(dir, function, line, bh->b_blocknr,
 				"bad entry in directory: %s - offset=%u, "
 				"inode=%u, rec_len=%d, lblk=%d, size=%d fake=%d",
 				 error_msg, offset, le32_to_cpu(de->inode),
-				 rlen, lblk, size, fake);
+				 rlen, size, fake);
 
 	return 1;
 }
