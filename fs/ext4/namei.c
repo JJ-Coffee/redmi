@@ -1275,7 +1275,7 @@ static int dx_make_map(struct inode *dir, struct buffer_head *bh,
 
 	while ((char *) de < base + buflen) {
 		if (ext4_check_dir_entry(dir, NULL, de, bh, base, buflen,
-					 ((char *)de) - base, offset))
+					 ((char *)de) - base, 0))
 			return -EFSCORRUPTED;
 		if (de->name_len && de->inode) {
 			if (ext4_hash_in_dirent(dir))
