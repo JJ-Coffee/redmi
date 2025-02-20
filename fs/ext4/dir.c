@@ -53,7 +53,7 @@ static int is_dx_dir(struct inode *inode)
 	return 0;
 }
 
-static bool is_fake_entry(struct inode *dir, ext4_lblk_t lblk,
+static bool is_fake_entry(struct inode *dir,
 			  unsigned int offset, unsigned int blocksize)
 {
 	/* Entries in the first block before this value refer to . or .. */
