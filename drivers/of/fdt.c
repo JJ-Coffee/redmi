@@ -1129,6 +1129,12 @@ static const int read_dt_cmdline = 1;
 static const int concat_cmdline;
 #endif
 
+#ifdef CONFIG_CMDLINE
+static const char *config_cmdline = CONFIG_CMDLINE;
+#else
+static const char *config_cmdline = "";
+#endif
+
 int __init early_init_dt_scan_chosen(unsigned long node, const char *uname,
 				     int depth, void *data)
 {
