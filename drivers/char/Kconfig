@@ -602,7 +602,6 @@ config RANDOM_TRUST_CPU
 	  other sources of randomness are always used, regardless of this
 	  setting.  Enabling this implies trusting that the CPU can supply high
 	  quality and non-backdoored random numbers.
->>>>>>> d73f58abbf00 (Merge 4.14.285 into android-4.14-stable)
 
 	  Say Y here unless you have reason to mistrust your CPU or believe
 	  its RNG facilities may be faulty. This may also be configured at
