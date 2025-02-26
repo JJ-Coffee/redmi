@@ -416,23 +416,6 @@ drop_error:
 	goto drop;
 }
 
-static int ip_rcv_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
-{
-	int ret;
-
-	/* if ingress device is enslaved to an L3 master device pass the
-	 * skb to its handler for processing
-	 */
-	skb = l3mdev_ip_rcv(skb);
-	if (!skb)
-		return NET_RX_SUCCESS;
-
-	ret = ip_rcv_finish_core(net, sk, skb);
-	if (ret != NET_RX_DROP)
-		ret = dst_input(skb);
-	return ret;
-}
-
 /*
  * 	Main IP Receive routine.
  */
