@@ -1496,8 +1496,9 @@ struct sk_buff *ip_make_skb(struct sock *sk,
 					int len, int odd, struct sk_buff *skb),
 			    void *from, int length, int transhdrlen,
 			    struct ipcm_cookie *ipc, struct rtable **rtp,
-			    struct inet_cork *cork, unsigned int flags)
+			    unsigned int flags)
 {
+	struct inet_cork cork;
 	struct sk_buff_head queue;
 	int err;
 
