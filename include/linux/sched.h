@@ -390,7 +390,7 @@ struct util_est {
 	unsigned int			enqueued;
 	unsigned int			ewma;
 #define UTIL_EST_WEIGHT_SHIFT		2
-} __attribute__((__aligned__(sizeof(u64))));
+};
 
 /*
  * The load_avg/util_avg accumulates an infinite geometric series
@@ -452,6 +452,16 @@ struct sched_avg {
 	unsigned long			load_avg;
 	unsigned long			util_avg;
 	struct util_est			util_est;
+	unsigned long loadwop_avg, loadwop_sum;
+#ifdef CONFIG_SCHED_HMP
+	unsigned long pending_load;
+	u32 nr_pending;
+	u32 nr_dequeuing_low_prio;
+	u32 nr_normal_prio;
+	u64 hmp_last_up_migration;
+	u64 hmp_last_down_migration;
+#endif /* CONFIG_SCHED_HMP */
+};
 
 struct sched_statistics {
 #ifdef CONFIG_SCHEDSTATS
@@ -531,7 +541,7 @@ struct sched_entity {
 	 * Put into separate cache line so it does not
 	 * collide with read-mostly values above.
 	 */
-	struct sched_avg		avg;
+	struct sched_avg		avg ____cacheline_aligned_in_smp;
 #endif
 
 #ifdef CONFIG_MTK_RT_THROTTLE_MON
