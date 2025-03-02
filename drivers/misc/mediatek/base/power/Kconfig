@@ -128,6 +128,6 @@ config MTK_QOS_V2
 
 config MTK_NFC_CLKBUF_ENABLE
         bool "MTK NFC clock enable"
-	default y
+	default n
 	---help---
 	  This version support MTK NFC clock enable
