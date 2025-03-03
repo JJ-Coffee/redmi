@@ -1,0 +1,25 @@
+name: Delete all source
+
+on:
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  clean-branches:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: kernelsu
+
+      - name: Remove All Files
+        run: rm -rf *
+
+      - name: Commit & Push Deletion
+        run: |
+          git config --global user.name "JJ-Coffee"
+          git config --global user.email "akuntrial042@gmail.com"
+          git add -A
+          git commit -m "Delete all files from kernelsu"
+          git push origin kernelsu
