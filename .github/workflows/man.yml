@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Your Repository
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: kernelsu
 
           
       - name: Configure Git User
