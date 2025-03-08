@@ -205,7 +205,8 @@ static struct mount *alloc_vfsmnt(const char *name)
 	struct mount *mnt = kmem_cache_zalloc(mnt_cache, GFP_KERNEL);
 	if (mnt) {
 		int err;
-
+		
+		err = mnt_alloc_id(mnt);
 		if (err)
 			goto out_free_cache;
 
