@@ -5430,7 +5430,7 @@ page_owner=on loop.max_part=7";
         
         tfa98xx: tfa98xx@34 {
                 status = "ok";
-                compatible = "mediatek,tfa98xx";
+                compatible = "mediatek,speaker_amp";
                 #sound-dai-cells = <0>;
                 reg = <0x34>;
                 reset-gpio = <&pio 24 0>;
