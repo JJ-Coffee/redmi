@@ -116,8 +116,9 @@ static void inject_event_helper(struct ccci_util_bc_user_ctlb *user_ctlb,
 			user_ctlb->curr_r = 0;
 	}
 
-	if (user_ctlb->curr_w < 0) {
-		CCCI_UTIL_ERR_MSG("invalid user_ctlb->curr_w\n");
+	if (user_ctlb->curr_w >= EVENT_BUFF_SIZE || user_ctlb->curr_w < 0) {
+		CCCI_UTIL_ERR_MSG(
+ 		"%s(user_ctlb->curr_w = %d)\n", __func__, user_ctlb->curr_w);
 		return;
 	}
 	user_ctlb->event_buf[user_ctlb->curr_w].time_stamp = *ev_rtime;
