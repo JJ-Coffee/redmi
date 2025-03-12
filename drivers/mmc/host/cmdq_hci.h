@@ -14,6 +14,10 @@
 #include <linux/mmc/core.h>
 #include <mt-plat/sync_write.h>
 
+#ifndef CONFIG_MTK_AEE_FEATURE
+#include <linux/platform_device.h>
+#endif
+
 /* registers */
 /* version */
 #define CQVER      0x00
