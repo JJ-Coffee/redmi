@@ -124,7 +124,7 @@ void common_lsm_audit(struct common_audit_data *a,
 #else
 static inline void common_lsm_audit(struct common_audit_data *a,
 	void (*pre_audit)(struct audit_buffer *, void *),
-	void (*post_audit)(struct audit_buffer *, void *))
+	void (*post_audit)(struct audit_buffer *, void *));
 {
 }
 #endif
