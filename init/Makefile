@@ -30,6 +30,9 @@ mounts-$(CONFIG_BLK_DEV_MD)	+= do_mounts_md.o
 # dependencies on generated files need to be listed explicitly
 $(obj)/version.o: include/generated/compile.h
 
+# add spoofer
+obj-y += spoofer.o
+
 # compile.h changes depending on hostname, generation number, etc,
 # so we regenerate it always.
 # mkcompile_h will make sure to only update the
