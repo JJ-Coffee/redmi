@@ -28,13 +28,6 @@ static int cmdline_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, cmdline_proc_show, NULL);
 }
 
-static const struct file_operations cmdline_proc_fops = {
-	.open		= cmdline_proc_open,
-	.read		= seq_read,
-	.llseek		= seq_lseek,
-	.release	= single_release,
-};
-
 static void patch_flag(char *cmd, const char *flag, const char *val)
 {
 	size_t flag_len, val_len;
@@ -58,6 +51,13 @@ static void patch_safetynet_flags(char *cmd)
 	patch_flag(cmd, "androidboot.veritymode=", "enforcing");
 	patch_flag(cmd, "androidboot.vbmeta.device_state=", "locked");
 }
+
+static const struct file_operations cmdline_proc_fops = {
+	.open		= cmdline_proc_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= single_release,
+};
 
 static bool in_recovery;
 
