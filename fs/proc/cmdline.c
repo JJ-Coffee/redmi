@@ -3,14 +3,10 @@
 #include <linux/init.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
-#include <asm/setup.h> // Untuk COMMAND_LINE_SIZE
-#include <linux/string.h>
 
 #ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
 extern int susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
 #endif
-
-static char spoofed_cmdline[COMMAND_LINE_SIZE];
 
 static int cmdline_proc_show(struct seq_file *m, void *v)
 {
@@ -20,30 +16,8 @@ static int cmdline_proc_show(struct seq_file *m, void *v)
 		return 0;
 	}
 #endif
-	seq_printf(m, "%s\n", spoofed_cmdline);
+	seq_printf(m, "%s\n", saved_command_line);
 	return 0;
-}
-
-static void __init spoof_cmdline_flags(const char *cmd)
-{
-	strlcpy(spoofed_cmdline, cmd, COMMAND_LINE_SIZE);
-
-	char *p;
-
-	p = strstr(spoofed_cmdline, "androidboot.verifiedbootstate=");
-	if (p) snprintf(p, COMMAND_LINE_SIZE - (p - spoofed_cmdline), "androidboot.verifiedbootstate=green ");
-
-	p = strstr(spoofed_cmdline, "androidboot.flash.locked=");
-	if (p) snprintf(p, COMMAND_LINE_SIZE - (p - spoofed_cmdline), "androidboot.flash.locked=1 ");
-
-	p = strstr(spoofed_cmdline, "androidboot.bootreason=");
-	if (p) snprintf(p, COMMAND_LINE_SIZE - (p - spoofed_cmdline), "androidboot.bootreason=PowerKey ");
-
-	p = strstr(spoofed_cmdline, "androidboot.vbmeta.device_state=");
-	if (p) snprintf(p, COMMAND_LINE_SIZE - (p - spoofed_cmdline), "androidboot.vbmeta.device_state=locked ");
-
-	p = strstr(spoofed_cmdline, "androidboot.veritymode=");
-	if (p) snprintf(p, COMMAND_LINE_SIZE - (p - spoofed_cmdline), "androidboot.veritymode=enforcing ");
 }
 
 static int cmdline_proc_open(struct inode *inode, struct file *file)
@@ -60,7 +34,6 @@ static const struct file_operations cmdline_proc_fops = {
 
 static int __init proc_cmdline_init(void)
 {
-	spoof_cmdline_flags(saved_command_line);
 	proc_create("cmdline", 0, NULL, &cmdline_proc_fops);
 	return 0;
 }
