@@ -230,8 +230,9 @@ extern int ksu_handle_setuid(struct cred *new, const struct cred *old);
 extern int ksu_sb_mount(const char *dev_name, const struct path *path,
                         const char *type, unsigned long flags, void *data);
 extern int ksu_inode_permission(struct inode *inode, int mask);
-#endif
 */
+#endif
+
 
 /* Security operations */
 
