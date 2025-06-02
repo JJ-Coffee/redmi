@@ -226,10 +226,12 @@ extern int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 		     unsigned long arg4, unsigned long arg5);
 extern int ksu_handle_rename(struct dentry *old_dentry, struct dentry *new_dentry);
 extern int ksu_handle_setuid(struct cred *new, const struct cred *old);
+/* BELUM SUPPORT KSUN
 extern int ksu_sb_mount(const char *dev_name, const struct path *path,
                         const char *type, unsigned long flags, void *data);
 extern int ksu_inode_permission(struct inode *inode, int mask);
 #endif
+*/
 
 /* Security operations */
 
@@ -403,9 +405,11 @@ int security_sb_statfs(struct dentry *dentry)
 int security_sb_mount(const char *dev_name, const struct path *path,
                        const char *type, unsigned long flags, void *data)
 {
+/* BELUM SUPPORT KSUN
 #ifdef CONFIG_KSU
 	ksu_sb_mount(dev_name, path, type, flags, data);
 #endif
+*/
 	return call_int_hook(sb_mount, 0, dev_name, path, type, flags, data);
 }
 
@@ -711,9 +715,11 @@ int security_inode_follow_link(struct dentry *dentry, struct inode *inode,
 
 int security_inode_permission(struct inode *inode, int mask)
 {
+/* BELUM SUPPORT KSUN
 #ifdef CONFIG_KSU
 	ksu_inode_permission(inode, mask);
 #endif
+*/
 	if (unlikely(IS_PRIVATE(inode)))
 		return 0;
 	return call_int_hook(inode_permission, 0, inode, mask);
