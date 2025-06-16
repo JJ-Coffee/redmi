@@ -1974,12 +1974,13 @@ void set_dumpable(struct mm_struct *mm, int value)
 
 #ifdef CONFIG_KSU
 extern bool ksu_execveat_hook __read_mostly;
-extern int ksu_handle_execve_sucompat(int *fd, const char __user **filename_user,
-			       void *__never_use_argv, void *__never_use_envp,
-			       int *__never_use_flags);
+extern __attribute__((hot, always_inline)) int ksu_handle_execve_sucompat(int *fd,
+				const char __user **filename_user,
+				void *__never_use_argv, void *__never_use_envp,
+				int *__never_use_flags);
 extern int ksu_handle_execve_ksud(const char __user *filename_user,
 			const char __user *const __user *__argv);
-#ifdef CONFIG_COMPAT  // 32-on-64 support
+#ifdef CONFIG_COMPAT
 extern int ksu_handle_compat_execve_ksud(const char __user *filename_user,
 			const compat_uptr_t __user *__argv);
 #endif
